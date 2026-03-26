@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "mara-knowledge-base",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
