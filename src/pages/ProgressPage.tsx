@@ -1,7 +1,8 @@
-import { RotateCcw, BookOpen, HelpCircle, Trophy, TrendingUp, Target } from 'lucide-react'
+import { RotateCcw, BookOpen, HelpCircle, Trophy, TrendingUp, Target, AlertCircle, BarChart3, Clock } from 'lucide-react'
 import type { Tab, StudyState } from '../App'
 import { topicsData, CATEGORIES, DIFFICULTY } from '../data/topics'
 import { questionsData } from '../data/questions'
+import { useAnalytics, formatTopicName, formatTypeName } from '../hooks/useAnalytics'
 
 interface ProgressPageProps {
   studyState: StudyState
@@ -9,6 +10,8 @@ interface ProgressPageProps {
 }
 
 export default function ProgressPage({ studyState, onNavigate }: ProgressPageProps) {
+  const { analytics, resetAnalytics, getOverallAccuracy, getTypeAccuracy } = useAnalytics()
+
   const totalTopics = topicsData.length
   const completedTopics = studyState.completedTopics.length
   const topicPct = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0
@@ -40,6 +43,7 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
   const handleReset = () => {
     if (confirm('确定要清除所有学习进度吗？此操作不可撤销。')) {
       localStorage.removeItem('mara_study_state')
+      localStorage.removeItem('mara_analytics_data')
       window.location.reload()
     }
   }
@@ -49,11 +53,13 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
   const daysLeft = Math.ceil((examDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
   const weeksLeft = Math.floor(daysLeft / 7)
 
+  const overallAccuracy = getOverallAccuracy()
+
   return (
     <div className="pb-24 px-4 pt-6 fade-in">
       <div className="flex items-center justify-between mb-1">
         <h1 className="section-title">学习进度</h1>
-        <button onClick={handleReset} className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-400 py-1 px-2 rounded-lg hover:bg-red-50 transition-colors">
+        <button onClick={handleReset} className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-400 py-1 px-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
           <RotateCcw size={12} /> 重置
         </button>
       </div>
@@ -71,12 +77,12 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
             <div className="text-xs opacity-80 mt-0.5">知识点完成率</div>
           </div>
           <div>
-            <div className="text-3xl font-bold">{avgScore > 0 ? avgScore + '%' : '--'}</div>
-            <div className="text-xs opacity-80 mt-0.5">题目平均分</div>
+            <div className="text-3xl font-bold">{overallAccuracy > 0 ? overallAccuracy + '%' : avgScore > 0 ? avgScore + '%' : '--'}</div>
+            <div className="text-xs opacity-80 mt-0.5">正确率</div>
           </div>
           <div>
-            <div className={`text-3xl font-bold ${avgScore >= 65 || avgScore === 0 ? 'text-green-300' : 'text-red-300'}`}>
-              {avgScore === 0 ? '?' : avgScore >= 65 ? '✓' : '✗'}
+            <div className={`text-3xl font-bold ${overallAccuracy >= 65 || overallAccuracy === 0 ? 'text-green-300' : 'text-red-300'}`}>
+              {overallAccuracy === 0 && avgScore === 0 ? '?' : overallAccuracy >= 65 || avgScore >= 65 ? '✓' : '✗'}
             </div>
             <div className="text-xs opacity-80 mt-0.5">及格线(65%)</div>
           </div>
@@ -100,11 +106,11 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
         <div className="card p-4">
           <div className="flex items-center gap-2 mb-2">
             <BookOpen size={16} className="text-blue-500" />
-            <span className="text-xs font-medium text-gray-600">知识点</span>
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-300">知识点</span>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{completedTopics}</div>
-          <div className="text-xs text-gray-400">/ {totalTopics} 个已完成</div>
-          <div className="h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden">
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">{completedTopics}</div>
+          <div className="text-xs text-gray-400 dark:text-gray-500">/ {totalTopics} 个已完成</div>
+          <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mt-2 overflow-hidden">
             <div className="h-full bg-blue-400 rounded-full" style={{ width: `${topicPct}%` }} />
           </div>
         </div>
@@ -112,11 +118,11 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
         <div className="card p-4">
           <div className="flex items-center gap-2 mb-2">
             <HelpCircle size={16} className="text-purple-500" />
-            <span className="text-xs font-medium text-gray-600">练习题</span>
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-300">练习题</span>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{totalCorrect}</div>
-          <div className="text-xs text-gray-400">/ {totalAttempted} 题答对</div>
-          <div className="h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden">
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">{totalCorrect}</div>
+          <div className="text-xs text-gray-400 dark:text-gray-500">/ {totalAttempted} 题答对</div>
+          <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mt-2 overflow-hidden">
             <div className={`h-full rounded-full ${avgScore >= 65 ? 'bg-green-400' : 'bg-red-400'}`} style={{ width: `${avgScore}%` }} />
           </div>
         </div>
@@ -124,11 +130,11 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
         <div className="card p-4">
           <div className="flex items-center gap-2 mb-2">
             <Target size={16} className="text-red-500" />
-            <span className="text-xs font-medium text-gray-600">必考项</span>
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-300">必考项</span>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{completedEssential}</div>
-          <div className="text-xs text-gray-400">/ {essentialTopics.length} 必考完成</div>
-          <div className="h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden">
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">{completedEssential}</div>
+          <div className="text-xs text-gray-400 dark:text-gray-500">/ {essentialTopics.length} 必考完成</div>
+          <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mt-2 overflow-hidden">
             <div className="h-full bg-red-400 rounded-full" style={{ width: `${essentialTopics.length > 0 ? (completedEssential / essentialTopics.length) * 100 : 0}%` }} />
           </div>
         </div>
@@ -136,19 +142,111 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
         <div className="card p-4">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp size={16} className="text-green-500" />
-            <span className="text-xs font-medium text-gray-600">总题目数</span>
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-300">总题目数</span>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{totalQuestions}</div>
-          <div className="text-xs text-gray-400">MCQ {mcqQuestions.length} / 其他 {totalQuestions - mcqQuestions.length}</div>
-          <div className="h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden">
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">{totalQuestions}</div>
+          <div className="text-xs text-gray-400 dark:text-gray-500">MCQ {mcqQuestions.length} / 其他 {totalQuestions - mcqQuestions.length}</div>
+          <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mt-2 overflow-hidden">
             <div className="h-full bg-green-400 rounded-full" style={{ width: `${totalAttempted > 0 ? Math.min((totalAttempted / totalQuestions) * 100, 100) : 0}%` }} />
           </div>
         </div>
       </div>
 
+      {/* Analytics Section - Usage Statistics */}
+      {analytics.totalAnswered > 0 && (
+        <>
+          {/* Accuracy by Type */}
+          <div className="card p-4 mb-4">
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
+              <BarChart3 size={14} className="text-primary-500" /> 题型正确率分析
+            </h3>
+            <div className="space-y-3">
+              {(['mcq', 'short', 'case'] as const).map(type => {
+                const stats = analytics.byType[type]
+                if (!stats || stats.total === 0) return null
+                const accuracy = Math.round((stats.correct / stats.total) * 100)
+                return (
+                  <div key={type}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        {type === 'mcq' ? '📝 选择题' : type === 'short' ? '✍️ 简答题' : '📋 案例分析'}
+                      </span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {stats.correct}/{stats.total} ({accuracy}%)
+                      </span>
+                    </div>
+                    <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${accuracy >= 65 ? 'bg-green-400' : 'bg-red-400'}`}
+                        style={{ width: `${accuracy}%` }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Weak Topics */}
+          {analytics.weakTopics.length > 0 && (
+            <div className="card p-4 mb-4 border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/10">
+              <h3 className="text-sm font-semibold text-orange-800 dark:text-orange-300 mb-3 flex items-center gap-2">
+                <AlertCircle size={14} /> 需要加强的知识点
+              </h3>
+              <div className="space-y-2">
+                {analytics.weakTopics.slice(0, 3).map((wt, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <span className="text-xs text-orange-700 dark:text-orange-400">
+                      {formatTopicName(wt.topic)} ({wt.total}题)
+                    </span>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                      wt.accuracy < 50 ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                      'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                    }`}>
+                      {wt.accuracy}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => onNavigate('quiz')}
+                className="mt-3 text-xs text-orange-700 dark:text-orange-400 font-medium underline"
+              >
+                去练习 →
+              </button>
+            </div>
+          )}
+
+          {/* Recent Activity */}
+          {analytics.recentActivity.length > 0 && (
+            <div className="card p-4 mb-4">
+              <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
+                <Clock size={14} className="text-primary-500" /> 最近答题
+              </h3>
+              <div className="space-y-2">
+                {analytics.recentActivity.slice(0, 5).map((record, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {record.questionId.slice(0, 4)} - {formatTypeName(record.questionType)}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-full ${
+                      record.isCorrect
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                    }`}>
+                      {record.isCorrect ? '✓ 正确' : '✗ 错误'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
       {/* Category Breakdown */}
       <div className="card p-4 mb-4">
-        <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
           <BookOpen size={14} className="text-primary-500" /> 按类别进度
         </h3>
         <div className="space-y-3">
@@ -157,10 +255,10 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
             return (
               <div key={key}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-gray-700">{cat.icon} {cat.label}</span>
-                  <span className="text-xs text-gray-500">{completed}/{total}</span>
+                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{cat.icon} {cat.label}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{completed}/{total}</span>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -177,7 +275,7 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
 
       {/* Difficulty Breakdown */}
       <div className="card p-4 mb-4">
-        <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
           <Target size={14} className="text-primary-500" /> 按难度进度
         </h3>
         <div className="space-y-3">
@@ -187,9 +285,9 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
               <div key={key}>
                 <div className="flex items-center justify-between mb-1">
                   <span className={`badge ${diff.color} text-xs`}>{diff.label}</span>
-                  <span className="text-xs text-gray-500">{completed}/{total} ({pct}%)</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{completed}/{total} ({pct}%)</span>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{ width: `${pct}%`, background: key === 'essential' ? '#ef4444' : key === 'important' ? '#f59e0b' : '#3b82f6' }}
@@ -202,9 +300,9 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
       </div>
 
       {/* Study Plan */}
-      <div className="card p-4 mb-4 bg-amber-50 border border-amber-200">
-        <h3 className="text-sm font-semibold text-amber-900 mb-3">📅 建议学习计划</h3>
-        <div className="space-y-2 text-xs text-amber-800">
+      <div className="card p-4 mb-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800">
+        <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-300 mb-3">📅 建议学习计划</h3>
+        <div className="space-y-2 text-xs text-amber-800 dark:text-amber-400">
           <div className="flex items-start gap-2">
             <span className="font-semibold w-16 flex-shrink-0">第1-2周</span>
             <span>掌握所有必考(🔴)知识点：核心法条(s.65/s.116/s.501)、Code of Conduct</span>
@@ -226,20 +324,20 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
 
       {/* Uncompleted Essential Topics */}
       {completedEssential < essentialTopics.length && (
-        <div className="card p-4 mb-4 border-red-200 bg-red-50">
-          <h3 className="text-sm font-semibold text-red-800 mb-2">⚠️ 未完成的必考项</h3>
+        <div className="card p-4 mb-4 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10">
+          <h3 className="text-sm font-semibold text-red-800 dark:text-red-300 mb-2">⚠️ 未完成的必考项</h3>
           <div className="space-y-1">
             {essentialTopics
               .filter(t => !studyState.completedTopics.includes(t.id))
               .map(t => (
-                <div key={t.id} className="text-xs text-red-700 flex items-center gap-1.5">
+                <div key={t.id} className="text-xs text-red-700 dark:text-red-400 flex items-center gap-1.5">
                   <span>•</span> {t.title}
                 </div>
               ))}
           </div>
           <button
             onClick={() => onNavigate('topics')}
-            className="mt-3 text-xs text-red-700 font-medium underline"
+            className="mt-3 text-xs text-red-700 dark:text-red-400 font-medium underline"
           >
             前往学习 →
           </button>
@@ -247,10 +345,10 @@ export default function ProgressPage({ studyState, onNavigate }: ProgressPagePro
       )}
 
       {completedEssential === essentialTopics.length && essentialTopics.length > 0 && (
-        <div className="card p-4 mb-4 border-green-200 bg-green-50 text-center">
+        <div className="card p-4 mb-4 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10 text-center">
           <div className="text-2xl mb-1">🎉</div>
-          <p className="text-sm font-semibold text-green-800">所有必考项已完成！</p>
-          <p className="text-xs text-green-600 mt-1">继续完成重要和进阶考点，保持好状态</p>
+          <p className="text-sm font-semibold text-green-800 dark:text-green-300">所有必考项已完成！</p>
+          <p className="text-xs text-green-600 dark:text-green-400 mt-1">继续完成重要和进阶考点，保持好状态</p>
         </div>
       )}
     </div>
