@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react'
 import { Search, ExternalLink, X, ChevronRight, BookOpen, Scale, FileText, Gavel, Award, Star } from 'lucide-react'
 import { legalData, legalCategories, highImportanceItems, type LegalItem } from '../data/legal'
 import { useLanguage } from '../context/LanguageContext'
-import { isBilingual, getText, BilingualText, BilingualContent } from '../components/BilingualText'
+import { isBilingual, getText, BilingualContent } from '../components/BilingualText'
+import type { BilingualText } from '../utils/bilingual'
 
 const typeInfo: Record<string, { label: string; color: string; darkColor: string; icon: typeof BookOpen }> = {
   act: { label: 'Migration Act', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300', darkColor: 'dark:bg-purple-900/30 dark:text-purple-300', icon: Scale },

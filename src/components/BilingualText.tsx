@@ -1,5 +1,6 @@
 import { useLanguage } from '../context/LanguageContext'
-import { BilingualText, isBilingual, getText } from '../utils/bilingual'
+import type { BilingualText } from '../utils/bilingual'
+import { isBilingual, getText } from '../utils/bilingual'
 
 interface BilingualTextProps {
   text: BilingualText
@@ -7,7 +8,7 @@ interface BilingualTextProps {
   showOriginal?: boolean
 }
 
-export function BilingualText({ text, className = '', showOriginal = false }: BilingualTextProps) {
+export function BilingualTextComponent({ text, className = '', showOriginal = false }: BilingualTextProps) {
   const { language, isEnglish } = useLanguage()
 
   if (!isBilingual(text)) {
