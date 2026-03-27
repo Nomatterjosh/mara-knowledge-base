@@ -54,7 +54,7 @@ export default function LegalPage() {
     regulations: legalData.filter(i => i.type === 'regulations').length,
     schedule: legalData.filter(i => i.type === 'schedule').length,
     code: legalData.filter(i => i.type === 'code').length,
-    case: legalData.filter(i => i.type === 'case').length,
+    caseType: legalData.filter(i => i.type === 'case').length,
     highImportance: legalData.filter(i => i.importance === 'high').length,
   }), [])
 
@@ -160,7 +160,7 @@ export default function LegalPage() {
             <p className="text-[10px] text-gray-500 dark:text-gray-400">Code</p>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-lg p-2 text-center border border-gray-200 dark:border-gray-700">
-            <p className="text-lg font-bold text-red-600 dark:text-red-400">{stats.case}</p>
+            <p className="text-lg font-bold text-red-600 dark:text-red-400">{stats.caseType}</p>
             <p className="text-[10px] text-gray-500 dark:text-gray-400">判例</p>
           </div>
         </div>
