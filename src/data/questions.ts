@@ -1,4 +1,4 @@
-import { BilingualText } from '../utils/bilingual'
+import type { BilingualText } from '../utils/bilingual'
 
 export type QuestionType = 'mcq' | 'short' | 'case';
 export type Difficulty = 'easy' | 'medium' | 'hard';
