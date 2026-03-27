@@ -16,7 +16,7 @@ const tabs: { id: Tab; label: string; Icon: React.FC<{ size?: number }> }[] = [
 
 export default function Navbar({ activeTab, onTabChange }: NavbarProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-gray-200 safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 safe-area-bottom">
       <div className="max-w-screen-lg mx-auto px-2 py-2">
         <div className="flex justify-around">
           {tabs.map(({ id, label, Icon }) => (

@@ -8,6 +8,7 @@ import QuizPage from './pages/QuizPage'
 import LegalPage from './pages/LegalPage'
 import ProgressPage from './pages/ProgressPage'
 import { ThemeProvider, ThemeToggle } from './context/ThemeContext'
+import { LanguageProvider, LanguageToggle } from './context/LanguageContext'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 
 export type Tab = 'home' | 'topics' | 'quiz' | 'legal' | 'progress'
@@ -109,6 +110,7 @@ function AppContent() {
           <div className="flex items-center gap-2">
             <SearchButton onClick={() => setSearchOpen(true)} />
             <ThemeToggle />
+            <LanguageToggle showLabel />
           </div>
         </div>
       </div>
@@ -126,7 +128,9 @@ function AppContent() {
 function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <LanguageProvider>
+        <AppContent />
+      </LanguageProvider>
     </ThemeProvider>
   )
 }

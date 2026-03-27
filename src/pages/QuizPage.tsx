@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   ChevronRight, CheckCircle, XCircle, BookOpen,
-  RotateCcw, Filter, ChevronDown, ChevronUp, Lightbulb, Bookmark, BookmarkCheck, ExternalLink
+  RotateCcw, Filter, ChevronDown, ChevronUp, Lightbulb, Bookmark, BookmarkCheck, ExternalLink, ArrowLeft
 } from 'lucide-react'
 import type { StudyState } from '../App'
 import { questionsData, type Question } from '../data/questions'
 import { getAustLIIUrl } from '../utils/austLII'
 import { useAnalytics } from '../hooks/useAnalytics'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
+import { useLanguage } from '../context/LanguageContext'
+import { isBilingual, getText, type BilingualText } from '../utils/bilingual'
 
 interface QuizPageProps {
   studyState: StudyState
@@ -28,6 +30,7 @@ export default function QuizPage({ studyState, onRecordScore, onToggleBookmark }
   const [showAnswer, setShowAnswer] = useState<Record<string, boolean>>({})
   const [sessionCorrect, setSessionCorrect] = useState(0)
   const { recordAnswer } = useAnalytics()
+  const { language } = useLanguage()
 
   const filtered = questionsData.filter(q => {
     const matchType = filterType === 'all' || q.type === filterType
@@ -142,26 +145,43 @@ export default function QuizPage({ studyState, onRecordScore, onToggleBookmark }
 
     return (
       <div className="pb-24 px-4 pt-6 fade-in">
-        {/* Progress */}
-        <div className="flex items-center justify-between mb-2 text-xs text-gray-500 dark:text-gray-400">
-          <div className="flex items-center gap-2">
-            <span>{currentIndex + 1} / {currentSet.length}</span>
-            <span className="text-gray-300 dark:text-gray-600">|</span>
-            <span className="hidden sm:inline text-gray-400 dark:text-gray-500">按 N/P 切换题目</span>
-          </div>
+        {/* Header with Back Button */}
+        <div className="flex items-center justify-between mb-3">
+          <button
+            onClick={() => {
+              if (confirm('确定要退出练习吗？进度将不会保存。')) {
+                setMode('list')
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            <ArrowLeft size={16} />
+            退出练习
+          </button>
+          <span className="text-xs text-gray-500 dark:text-gray-400">{currentIndex + 1} / {currentSet.length}</span>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mb-4 overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full transition-all" style={{ width: `${progress}%` }} />
+        </div>
+
+        {/* Tags Row */}
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className={`badge ${
               question.difficulty === 'easy' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
               question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
             }`}>{question.difficulty === 'easy' ? '简单' : question.difficulty === 'medium' ? '中等' : '难'}</span>
-            <button
-              onClick={() => onToggleBookmark(question.id)}
-              className={`p-1.5 rounded-lg transition-colors ${isBookmarked ? 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/30' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-              title={isBookmarked ? '取消收藏' : '收藏题目'}
-            >
-              {isBookmarked ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
-            </button>
+            <span className="hidden sm:inline text-xs text-gray-400 dark:text-gray-500">按 N/P 切换题目</span>
           </div>
+          <button
+            onClick={() => onToggleBookmark(question.id)}
+            className={`p-1.5 rounded-lg transition-colors ${isBookmarked ? 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/30' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+            title={isBookmarked ? '取消收藏' : '收藏题目'}
+          >
+            {isBookmarked ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
+          </button>
         </div>
         <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mb-4 overflow-hidden">
           <div className="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full transition-all" style={{ width: `${progress}%` }} />
@@ -182,11 +202,13 @@ export default function QuizPage({ studyState, onRecordScore, onToggleBookmark }
               title="查看法条原文 (AustLII)"
               onClick={e => e.stopPropagation()}
             >
-              {question.reference}
+              {isBilingual(question.reference) ? getText(question.reference, language) : question.reference}
               <ExternalLink size={10} />
             </a>
           </div>
-          <div className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-wrap">{question.question}</div>
+          <div className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-wrap">
+            {isBilingual(question.question) ? getText(question.question, language) : question.question}
+          </div>
         </div>
 
         {/* MCQ Options */}
@@ -196,6 +218,7 @@ export default function QuizPage({ studyState, onRecordScore, onToggleBookmark }
               const isSelected = answered === idx
               const isCorrect = idx === question.correctIndex
               const isAnswered = answered !== undefined
+              const optText = isBilingual(opt) ? getText(opt, language) : String(opt)
               let cls = 'option-btn'
               if (isAnswered) {
                 if (isCorrect) cls += ' correct'
@@ -204,7 +227,7 @@ export default function QuizPage({ studyState, onRecordScore, onToggleBookmark }
               return (
                 <button key={idx} className={cls} onClick={() => handleAnswer(question, idx)} disabled={!!isAnswered}>
                   <span className="font-medium mr-1">{String.fromCharCode(65 + idx)}.</span>
-                  {opt.substring(3)}
+                  {optText.startsWith('A.') || optText.startsWith('B.') || optText.startsWith('C.') || optText.startsWith('D.') ? optText.substring(3) : optText}
                   {isAnswered && isCorrect && <CheckCircle size={14} className="inline ml-2 text-green-600" />}
                   {isAnswered && isSelected && !isCorrect && <XCircle size={14} className="inline ml-2 text-red-500" />}
                 </button>
@@ -240,12 +263,16 @@ export default function QuizPage({ studyState, onRecordScore, onToggleBookmark }
             {(question.type === 'short' || question.type === 'case') && (
               <div>
                 <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 mb-2">📝 参考答案</p>
-                <div className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-3">{question.answer}</div>
+                <div className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-3">
+                  {isBilingual(question.answer) ? getText(question.answer, language) : question.answer}
+                </div>
               </div>
             )}
             <div className="border-t border-blue-200 dark:border-blue-800 pt-3 mt-2">
               <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">💡 解析</p>
-              <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">{question.explanation}</p>
+              <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                {isBilingual(question.explanation) ? getText(question.explanation, language) : question.explanation}
+              </p>
               {/* AustLII 链接 */}
               <a
                 href={austLiiUrl}
@@ -253,7 +280,7 @@ export default function QuizPage({ studyState, onRecordScore, onToggleBookmark }
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 mt-2 text-xs text-primary-600 dark:text-primary-400 hover:underline"
               >
-                查看法条原文 (AustLII)
+                {language === 'en' ? 'View Original Law (AustLII)' : '查看法条原文 (AustLII)'}
                 <ExternalLink size={10} />
               </a>
             </div>

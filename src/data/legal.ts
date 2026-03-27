@@ -1,14 +1,16 @@
+import { BilingualText } from '../utils/bilingual'
+
 export interface LegalItem {
   id: string
   type: 'act' | 'regulations' | 'schedule' | 'code' | 'case'
   section: string
-  title: string
-  summary: string
-  content: string
+  title: BilingualText
+  summary: BilingualText
+  content: BilingualText
   url?: string
   tags: string[]
   importance?: 'high' | 'medium' | 'low'
-  examNotes?: string
+  examNotes?: BilingualText
 }
 
 export const legalData: LegalItem[] = [
@@ -226,25 +228,59 @@ This is distinguishable from discretionary provisions like s.116 (cancellation) 
     id: 'act-s116',
     type: 'act',
     section: 's.116',
-    title: 'Power to cancel / 取消权力',
-    summary: '部长取消签证的广泛裁量权，可以取消的情形包括不符条件、虚假信息、未遵守条件、对社区构成风险等。',
-    content: `s.116(1) — The Minister may cancel a visa if satisfied that:
-(a) a circumstance that permitted the grant of the visa no longer exists;
-(b) the holder no longer satisfies a criterion for the visa;
-(c) information given for the application was incorrect;
-(d) the holder has not complied with a condition of the visa;
-(e) the holder is not a citizen of a country where Australia should not take such action;
-(g) the Minister considers cancellation in the national interest.
+    title: {
+      en: 'Power to cancel visas',
+      zh: '签证取消权力'
+    },
+    summary: {
+      en: 'The Minister has discretionary power to cancel a visa under various circumstances including breach of conditions, change of circumstances, risk to community, and for student visas — not being a genuine student.',
+      zh: '部长取消签证的裁量权，可以取消的情形包括批准依据的事实不再存在、未遵守条件、对社区构成风险、学生签证不真实等。'
+    },
+    content: {
+      en: `s.116(1) — Grounds for cancellation:
+(a) Circumstances that permitted the grant no longer exist
+(aa) Circumstances that permitted the grant never existed
+(b) Holder has not complied with visa conditions
+(c) Other person required to comply with conditions has not done so
+(d) If holder has not arrived or completed immigration clearance — may cancel under s.109
+(e) Holder presents risk: to community health/safety/order, or to individual's health/safety
+(f) Visa application or grant contravenes this Act or other Commonwealth law
+(fa) Student visa: holder is not or may not be a genuine student; or engaged in conduct not in accordance with visa purpose
+(1AA) Unable to verify holder's identity
+(1AB) Incorrect information provided (for valid application or grant decision)
+(1AC) Received/provided benefit due to sponsorship-related event
 
-Key points:
-• s.116 is DISCRETIONARY ("may" cancel) — must still consider whether to exercise power
-• Natural justice required per ss.119-120 before cancellation
-• Exceptions: s.128 offshore cancellation without notice
-• Contrast with MANDATORY cancellation under s.501(3A)`,
+s.116 is DISCRETIONARY ("may") — must consider whether to exercise power
+s.116(1AA)-(1AD) May cancel without notice
+
+⚠️ NOTE: s.128 allows offshore cancellation without notice
+⚠️ COMPARE: s.501(3A) is MANDATORY cancellation (no discretion)`,
+      zh: `s.116(1) — 部长可取消签证的情形：
+(a) 批准签证所依据的事实或情况不再存在
+(aa) 批准签证所依据的事实或情况从未存在
+(b) 持有人未遵守签证条件
+(c) 其他需遵守条件的人未遵守条件
+(d) 如持有人未入境或未完成入境清关——则可按s.109取消
+(e) 持有人在澳存在风险：危害社区健康/安全/秩序，或危害个人健康/安全
+(f) 签证申请或批准违反本法或其他联邦法律
+(fa) 学生签证：持有人不是或可能不是真实学生；或从事非签证目的的行为
+(1AA) 无法核实持有人身份
+(1AB) 提供了不正确信息（用于有效申请或批准决定）
+(1AC) 因 sponsorship-related event 收取/提供利益
+
+s.116是裁量权("may") — 需考虑是否行使权力
+s.116(1AA)-(1AD) 无需通知可直接取消
+
+【注意】s.128 境外取消可无需通知
+【对比】s.501(3A) 强制取消（无裁量权）`
+    },
     url: 'https://www.austlii.edu.au/cgi-bin/viewdb/au/legis/cth/consol_act/ma1958118/s116.html',
-    tags: ['s.116', 'cancellation', 'discretionary', 'visa conditions'],
+    tags: ['s.116', 'cancellation', 'discretionary', 'visa conditions', 'genuine student'],
     importance: 'high',
-    examNotes: '签证取消的核心条款，注意与s.65和s.501的区别'
+    examNotes: {
+      en: 'Core visa cancellation provision — distinguish from s.65 and s.501',
+      zh: '签证取消的核心条款，注意与s.65和s.501的区别'
+    }
   },
   {
     id: 'act-s128',
@@ -350,24 +386,87 @@ AAT复议的基础`,
     id: 'act-s501',
     type: 'act',
     section: 's.501',
-    title: 'Refusal or cancellation of visa on character grounds / 品格测试',
-    summary: '不满足品格测试的非公民可被拒绝或取消签证。s.501(3A)规定强制取消：正在服刑且被判12个月以上监禁者。',
-    content: `s.501(1)-(2): 部长可以基于品格拒绝/取消签证
-s.501(3A): 强制取消 — 正在服刑且被判12个月以上监禁
+    title: {
+      en: 'Refusal or cancellation of visa on character grounds',
+      zh: '品格测试 — 签证拒绝或取消'
+    },
+    summary: {
+      en: 'A non-citizen who fails the character test may have their visa refused or cancelled. Section 501(3A) provides for mandatory cancellation of visa holders who are serving a sentence of 12 months or more.',
+      zh: '不满足品格测试的非公民可被拒绝或取消签证。s.501(3A)规定正在服刑且被判12个月以上监禁者将被强制取消签证。'
+    },
+    content: {
+      en: `s.501(1): The Minister may refuse to grant a visa if the applicant fails the character test
+s.501(2): The Minister may cancel a visa if there are reasonable grounds to believe the holder does not pass the character test
+s.501(3): The Minister may refuse or cancel on national security grounds (no natural justice required)
+s.501(3A): MANDATORY cancellation — for visa holders serving a sentence for serious crimes or child sex offences
 
-品格测试失败情形：
-• (a) 重大犯罪记录（死刑、终身监禁、12个月以上监禁、2次以上监禁）
-• (b) 与犯罪组织关联
-• (c) 一般行为不良
-• (d) 对社区构成风险
-• (e) 涉及儿童的性犯罪
-• (g) ASIO安全评估
+【10 Ways to Fail the Character Test s.501(6)】
+(a) Substantial criminal record (see definition below)
+(aa) Committed an offence while in immigration detention
+(ab) Breached s.197A (obstruction of immigration officer)
+(b) Involvement in criminal organisations
+(baa-ba) Disseminating hatred or extremism
+(c) Past and present criminal conduct or other conduct indicates lack of good character
+(d) Likely to engage in: criminal conduct/re俗/incite discord/endanger the community
+(e) Sex offences involving children (convicted or acquitted)
+(f) Charged with: genocide/crime against humanity/war crime/torture/slavery
+(g) Adverse ASIO security assessment
+(h) Interpol notice poses a risk
 
-⚠️ MARA考试最高频考点！`,
+【Substantial Criminal Record s.501(7)】Any of the following:
+• Death sentence
+• Life imprisonment
+• Imprisonment for 12 months or more
+• 2+ prison sentences totalling 12 months or more
+• Found not guilty by reason of mental illness but detained
+
+【Hatred and Extremism s.501(6A)】
+• Member of terrorist/organisation sponsoring terrorism/hatred group
+• Association with intent to support terrorism/extremism/hatred
+• Engagement in hate crimes
+• Public statements propagating hatred based on race/skin colour
+
+⚠️ HIGHEST FREQUENCY EXAM POINT FOR MARA!`,
+      zh: `s.501(1): 部长可拒绝未通过品格测试者的签证申请
+s.501(2): 部长可取消签证（如合理怀疑且持有人无法证明通过品格测试）
+s.501(3): 部长可基于国家安全利益拒绝/取消（无需自然公正）
+s.501(3A): 强制取消 — 正在服刑者（被判12个月以上的严重犯罪或涉及儿童性犯罪）
+
+【不通过品格测试的10种情形 s.501(6)】
+(a) 重大犯罪记录（见下方详细定义）
+(aa) 在immigration detention期间犯罪
+(ab) 违反s.197A（妨碍移民官员）
+(b) 涉嫌参与犯罪组织
+(baa-ba) 传播仇恨和极端主义
+(c) 考量过去/现在的犯罪或一般行为，不具备良好品格
+(d) 进入澳大利亚后可能：犯罪/骚扰/煽动社区矛盾/危害社区
+(e) 涉及儿童的性犯罪（定罪或无罪释放）
+(f) 被指控：种族灭绝/反人类罪/战争罪/酷刑/奴隶制
+(g) ASIO安全评估不合格
+(h) Interpol通报存在风险
+
+【重大犯罪记录 s.501(7)】满足任一即构成：
+• 被判死刑
+• 被判终身监禁
+• 被判12个月以上监禁
+• 被判2次以上监禁且累计12个月以上
+• 因精神问题被裁定无罪但被羁押
+
+【传播仇恨和极端主义 s.501(6A)】
+• 身为恐怖组织/国家赞助恐怖主义/仇恨团体的成员
+• 通过 association 意图支持恐怖主义/极端主义/仇恨
+• 参与仇恨犯罪
+• 公开声明传播基于种族/肤色的仇恨思想
+
+⚠️ MARA考试最高频考点！`
+    },
     url: 'https://www.austlii.edu.au/cgi-bin/viewdb/au/legis/cth/consol_act/ma1958118/s501.html',
-    tags: ['s.501', 'character', 'cancellation', 'substantial criminal record'],
+    tags: ['s.501', 'character', 'cancellation', 'substantial criminal record', 'character test'],
     importance: 'high',
-    examNotes: 'MARA考试最高频考点，必须完全掌握'
+    examNotes: {
+      en: 'HIGHEST FREQUENCY EXAM POINT — Must master all 10 grounds',
+      zh: 'MARA考试最高频考点，必须完全掌握10种情形'
+    }
   },
   {
     id: 'act-s501CA',
@@ -744,6 +843,128 @@ Section 24 - 记录保存
     tags: ['case law', 's.501CA', 'revocation', 'Federal Court'],
     importance: 'high',
     examNotes: 's.501CA的核心判例'
+  },
+  {
+    id: 'coc-2022',
+    type: 'code',
+    section: 'Code of Conduct',
+    title: {
+      en: 'Code of Conduct for registered migration agents 2021',
+      zh: '注册移民代理行为准则 2021'
+    },
+    summary: {
+      en: 'Migration (Migration Agents Code of Conduct) Regulations 2021, effective 1 March 2022. Prescribes professional duties, confidentiality obligations, and conflict of interest management for registered migration agents.',
+      zh: '2022年3月1日起生效的移民代理行为准则，规定了注册移民代理的专业义务、保密义务、利益冲突管理等。'
+    },
+    content: {
+      en: `Migration (Migration Agents Code of Conduct) Regulations 2021
+Effective: 1 March 2022
+Applies to: All registered migration agents in Australia (MARA)
+
+【Core Duties s.13】
+A migration agent must:
+(a) act professionally
+(b) act competently
+(c) act diligently
+(d) act ethically, honestly and with integrity
+
+【Duties to Clients】
+s.14 Treat all persons with appropriate respect (no discrimination)
+s.27 Not accept instructions to engage in misconduct
+s.33 General duty of confidentiality
+s.34 Disclose conflicts of interest
+s.35 Duty of confidentiality
+s.36 Know your client (identity and circumstances)
+s.37 Arrange interpreter services
+s.38 Provide consumer guide to clients
+s.40 Avoid causing unnecessary expense or delay
+s.41 Do not give false or misleading documents to clients
+
+【Service Agreements s.42-45】
+- Written service agreement required
+- Must include fee details (hourly rate or fixed fee)
+- Variations require written notice
+- Ensure work/services specified are completed
+
+【Fees s.46-50】
+- No fees outside agreement
+- Prepaid fees go to Trust Account
+- Invoices and receipts required
+- Client money managed separately
+
+【Duties to MARA Authority】
+s.22 Maintain professional skills and knowledge
+s.25 Display MARN on all documents
+s.27 Maintain professional indemnity insurance
+s.28 Notify changes within 14 days
+s.29 Notify circumstances affecting continued registration
+s.30 Notify suspension of registration
+s.32 Respond to MARA information requests
+
+【Document Management s.53-54】
+- Keep client documents securely
+- Return documents on client request
+- Return all client documents after service ends
+
+⚠️ MANDATORY EXAM CONTENT FOR MARA!`,
+      zh: `Migration (Migration Agents Code of Conduct) Regulations 2021
+生效日期：2022年3月1日
+适用：所有在澳大利亚注册的移民代理（MARA）
+
+【核心义务 s.13】
+移民代理必须：
+(a) 专业行事 professionally
+(b) 胜任职守 competently
+(c) 勤勉尽职 diligently
+(d) 遵守道德、诚实守信 ethically, honestly and with integrity
+
+【对客户义务】
+s.14 尊重所有人不受歧视
+s.27 不得接受从事不当行为的指示
+s.33 一般保密义务
+s.34 告知客户利益冲突
+s.35 保密义务
+s.36 了解客户身份和情况
+s.37 安排口译服务
+s.38 向客户提供消费者指南
+s.40 避免造成不必要的费用或延误
+s.41 不向客户提供虚假或误导性文件
+
+【服务协议 s.42-45】
+- 必须签订书面服务协议
+- 协议需包含费用明细（小时费率或固定费用）
+- 变更需书面通知
+- 确保协议中的工作或服务完成
+
+【费用 s.46-50】
+- 不得收取协议外的费用
+- 预收费用需存入Trust Account
+- 必须提供发票和收据
+- 客户资金需单独管理
+
+【对MARA Authority义务】
+s.22 维持专业技能和知识
+s.25 在所有文件上显示MARN
+s.27 维持职业责任保险
+s.28 14天内通知信息和地址变更
+s.29 通知可能影响继续注册的变更
+s.30 通知暂停注册
+s.32 回应MARA的信息请求
+
+【文件管理 s.53-54】
+- 安全保管客户文件
+- 客户要求时返还文件
+- 终止服务后返还所有客户文件
+
+⚠️ MARA考试必考内容！`
+    },
+    url: 'https://www.legislation.gov.au/F2022L00049/contents/asmade',
+    tags: ['code of conduct', 'MARA', 'migration agent', 'professional duties', 'confidentiality'],
+    importance: 'high',
+    examNotes: {
+      en: 'MANDATORY EXAM CONTENT — Master all core provisions',
+      zh: 'MARA考试必考内容，需掌握所有核心条款'
+    }
   }
 ]
 

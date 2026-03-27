@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Search, CheckCircle, Circle, ChevronRight, X, ExternalLink } from 'lucide-react'
 import type { StudyState } from '../App'
 import { topicsData, CATEGORIES, DIFFICULTY, type Topic, type Section } from '../data/topics'
+import { useLanguage } from '../context/LanguageContext'
+import { isBilingual, getText, type BilingualText } from '../utils/bilingual'
 
 interface TopicsPageProps {
   studyState: StudyState
@@ -13,6 +15,7 @@ export default function TopicsPage({ studyState, onMarkComplete }: TopicsPagePro
   const [filterCategory, setFilterCategory] = useState<string>('all')
   const [filterDifficulty, setFilterDifficulty] = useState<string>('all')
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null)
+  const { language } = useLanguage()
 
   const filtered = topicsData.filter(t => {
     const matchSearch = !search || 
@@ -31,9 +34,9 @@ export default function TopicsPage({ studyState, onMarkComplete }: TopicsPagePro
   return (
     <div className="pb-24 fade-in">
       {/* Header */}
-      <div className="sticky top-0 bg-gray-50/95 backdrop-blur-sm z-10 px-4 pt-6 pb-3">
+      <div className="sticky top-0 bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur-sm z-10 px-4 pt-6 pb-3">
         <h1 className="section-title">知识点库</h1>
-        <p className="section-subtitle">{topicsData.length}个考点 · 按类别系统梳理</p>
+        <p className="section-subtitle dark:text-gray-400">{topicsData.length}个考点 · 按类别系统梳理</p>
 
         {/* Search */}
         <div className="relative mb-3">
@@ -43,7 +46,7 @@ export default function TopicsPage({ studyState, onMarkComplete }: TopicsPagePro
             placeholder="搜索考点、法条、关键词..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
+            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-300 dark:focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
           />
           {search && (
             <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -72,7 +75,7 @@ export default function TopicsPage({ studyState, onMarkComplete }: TopicsPagePro
 
       {/* Results */}
       <div className="px-4 mt-2">
-        <p className="text-xs text-gray-400 mb-3">找到 {filtered.length} 个考点</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">找到 {filtered.length} 个考点</p>
         <div className="space-y-2">
           {filtered.map(topic => {
             const completed = studyState.completedTopics.includes(topic.id)
@@ -82,7 +85,7 @@ export default function TopicsPage({ studyState, onMarkComplete }: TopicsPagePro
               <button
                 key={topic.id}
                 onClick={() => setSelectedTopic(topic)}
-                className="card w-full text-left p-4 hover:border-primary-200"
+                className="card w-full text-left p-4 hover:border-primary-200 dark:hover:border-primary-700"
               >
                 <div className="flex items-start gap-3">
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0 ${cat.color}`}>
@@ -90,27 +93,31 @@ export default function TopicsPage({ studyState, onMarkComplete }: TopicsPagePro
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-sm font-semibold text-gray-900 leading-snug">{topic.title}</h3>
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-snug">
+                        {isBilingual(topic.title) ? getText(topic.title, language) : topic.title}
+                      </h3>
                       {completed ? (
                         <CheckCircle size={18} className="text-green-500 flex-shrink-0" />
                       ) : (
-                        <Circle size={18} className="text-gray-300 flex-shrink-0" />
+                        <Circle size={18} className="text-gray-300 dark:text-gray-600 flex-shrink-0" />
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{topic.subtitle}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
+                      {isBilingual(topic.subtitle) ? getText(topic.subtitle, language) : topic.subtitle}
+                    </p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className={`badge ${diff.color}`}>{diff.label}</span>
                       <span className={`badge ${cat.color}`}>{cat.label}</span>
                     </div>
                   </div>
-                  <ChevronRight size={16} className="text-gray-300 flex-shrink-0 mt-1" />
+                  <ChevronRight size={16} className="text-gray-300 dark:text-gray-600 flex-shrink-0 mt-1" />
                 </div>
               </button>
             )
           })}
 
           {filtered.length === 0 && (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-gray-400 dark:text-gray-500">
               <Search size={32} className="mx-auto mb-2 opacity-30" />
               <p className="text-sm">没有找到匹配的考点</p>
             </div>
@@ -129,6 +136,7 @@ function TopicDetail({ topic, studyState, onMarkComplete, onBack }: {
   onMarkComplete: (id: string) => void
   onBack: () => void
 }) {
+  const { language } = useLanguage()
   const completed = studyState.completedTopics.includes(topic.id)
   const cat = CATEGORIES[topic.category]
   const diff = DIFFICULTY[topic.difficulty]
@@ -136,20 +144,22 @@ function TopicDetail({ topic, studyState, onMarkComplete, onBack }: {
   return (
     <div className="pb-24 fade-in">
       {/* Sticky Header */}
-      <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 border-b border-gray-100">
+      <div className="sticky top-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm z-10 border-b border-gray-100 dark:border-gray-700">
         <div className="px-4 py-3 flex items-center gap-3">
-          <button onClick={onBack} className="p-1.5 rounded-lg hover:bg-gray-100">
-            <ChevronRight size={20} className="text-gray-600 rotate-180" />
+          <button onClick={onBack} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+            <ChevronRight size={20} className="text-gray-600 dark:text-gray-400 rotate-180" />
           </button>
           <div className="flex-1 min-w-0">
-            <h2 className="text-sm font-semibold text-gray-900 truncate">{topic.title}</h2>
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+              {isBilingual(topic.title) ? getText(topic.title, language) : topic.title}
+            </h2>
           </div>
           <button
             onClick={() => onMarkComplete(topic.id)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               completed
-                ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                : 'bg-primary-100 text-primary-700 hover:bg-primary-200'
+                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50'
+                : 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-900/50'
             }`}
           >
             {completed ? <><CheckCircle size={14} /> 已完成</> : <><Circle size={14} /> 标记完成</>}
@@ -163,22 +173,24 @@ function TopicDetail({ topic, studyState, onMarkComplete, onBack }: {
           <span className={`badge ${diff.color}`}>{diff.label}</span>
           <span className={`badge ${cat.color}`}>{cat.icon} {cat.label}</span>
           {topic.tags.slice(0, 4).map(tag => (
-            <span key={tag} className="badge bg-gray-100 text-gray-600">{tag}</span>
+            <span key={tag} className="badge bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">{tag}</span>
           ))}
         </div>
 
-        <p className="text-sm text-gray-500 mb-5 italic">{topic.subtitle}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-5 italic">
+          {isBilingual(topic.subtitle) ? getText(topic.subtitle, language) : topic.subtitle}
+        </p>
 
         {/* Content Sections */}
         <div className="space-y-5">
           {topic.content.map((section, idx) => (
-            <SectionRenderer key={idx} section={section} />
+            <SectionRenderer key={idx} section={section} language={language} />
           ))}
         </div>
 
         {/* External Links */}
-        <div className="mt-6 pt-4 border-t border-gray-100">
-          <p className="text-xs text-gray-400 font-medium mb-2">相关资源</p>
+        <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mb-2">相关资源</p>
           <div className="space-y-1.5">
             {[
               { label: 'Migration Act 1958 (AustLII)', url: 'https://www.austlii.edu.au/cgi-bin/viewdb/au/legis/cth/consol_act/ma1958118/' },
@@ -190,7 +202,7 @@ function TopicDetail({ topic, studyState, onMarkComplete, onBack }: {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-xs text-primary-600 hover:text-primary-800 py-1"
+                className="flex items-center gap-2 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 py-1"
               >
                 <ExternalLink size={12} />
                 {link.label}
@@ -203,30 +215,32 @@ function TopicDetail({ topic, studyState, onMarkComplete, onBack }: {
   )
 }
 
-function SectionRenderer({ section }: { section: Section }) {
+function SectionRenderer({ section, language }: { section: Section; language: 'en' | 'zh' }) {
+  const getCellText = (cell: BilingualText) => isBilingual(cell) ? getText(cell, language) : cell
+
   return (
     <div>
-      <h3 className="text-sm font-bold text-gray-900 mb-2 pb-1 border-b border-gray-100">
-        {section.heading}
+      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-2 pb-1 border-b border-gray-100 dark:border-gray-700">
+        {getCellText(section.heading)}
       </h3>
       {section.type === 'table' && section.headers && section.rows && (
-        <div className="overflow-x-auto rounded-xl border border-gray-200">
+        <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
           <table className="w-full text-xs">
             <thead>
-              <tr className="bg-gray-50">
+              <tr className="bg-gray-50 dark:bg-gray-800">
                 {section.headers.map((h, i) => (
-                  <th key={i} className="px-3 py-2 text-left font-semibold text-gray-700 whitespace-nowrap">
-                    {h}
+                  <th key={i} className="px-3 py-2 text-left font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                    {getCellText(h)}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {section.rows.map((row, i) => (
-                <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
+                <tr key={i} className={i % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-800/50'}>
                   {row.map((cell, j) => (
-                    <td key={j} className="px-3 py-2 text-gray-700 border-t border-gray-100">
-                      {cell}
+                    <td key={j} className="px-3 py-2 text-gray-700 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700">
+                      {getCellText(cell)}
                     </td>
                   ))}
                 </tr>
@@ -238,27 +252,27 @@ function SectionRenderer({ section }: { section: Section }) {
       {section.type === 'list' && section.items && (
         <ul className="space-y-2">
           {section.items.map((item, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-              <span className="w-5 h-5 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-xs flex-shrink-0 mt-0.5 font-semibold">
+            <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <span className="w-5 h-5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 flex items-center justify-center text-xs flex-shrink-0 mt-0.5 font-semibold">
                 {i + 1}
               </span>
-              {item}
+              {getCellText(item)}
             </li>
           ))}
         </ul>
       )}
       {(section.type === 'text' || !section.type) && (
-        <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line bg-gray-50 rounded-xl p-3">
-          {section.body}
+        <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+          {getCellText(section.body)}
         </div>
       )}
       {section.type === 'warning' && (
-        <div className="text-sm text-amber-800 leading-relaxed bg-amber-50 rounded-xl p-3 border border-amber-200">
-          ⚠️ {section.body}
+        <div className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 border border-amber-200 dark:border-amber-800">
+          ⚠️ {getCellText(section.body)}
         </div>
       )}
       {section.type === 'tip' && (
-        <div className="text-sm text-green-800 leading-relaxed bg-green-50 rounded-xl p-3 border border-green-200">
+        <div className="text-sm text-green-800 dark:text-green-300 leading-relaxed bg-green-50 dark:bg-green-900/20 rounded-xl p-3 border border-green-200 dark:border-green-800">
           💡 {section.body}
         </div>
       )}
@@ -272,8 +286,8 @@ function FilterChip({ active, onClick, children }: { active: boolean; onClick: (
       onClick={onClick}
       className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
         active
-          ? 'bg-primary-600 text-white shadow-sm'
-          : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+          ? 'bg-primary-600 text-white shadow-sm dark:bg-primary-500'
+          : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
       }`}
     >
       {children}

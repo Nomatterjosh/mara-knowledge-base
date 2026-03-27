@@ -1,3 +1,5 @@
+import { BilingualText } from '../utils/bilingual'
+
 export type QuestionType = 'mcq' | 'short' | 'case';
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -6,12 +8,12 @@ export interface Question {
   type: QuestionType;
   topic: string;
   difficulty: Difficulty;
-  question: string;
-  options?: string[];
+  question: BilingualText;
+  options?: BilingualText[];
   correctIndex?: number;
-  answer: string;
-  explanation: string;
-  reference: string;
+  answer: BilingualText;
+  explanation: BilingualText;
+  reference: BilingualText;
   tags: string[];
 }
 

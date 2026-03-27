@@ -1,7 +1,9 @@
+import { BilingualText } from '../utils/bilingual'
+
 export interface Topic {
   id: string;
-  title: string;
-  subtitle: string;
+  title: BilingualText;
+  subtitle: BilingualText;
   category: 'visa' | 'law' | 'ethics' | 'procedure' | 'review';
   difficulty: 'essential' | 'important' | 'advanced';
   tags: string[];
@@ -9,12 +11,12 @@ export interface Topic {
 }
 
 export interface Section {
-  heading: string;
-  body: string;
+  heading: BilingualText;
+  body: BilingualText;
   type?: 'text' | 'table' | 'list' | 'warning' | 'tip';
-  rows?: string[][];
-  headers?: string[];
-  items?: string[];
+  rows?: BilingualText[][];
+  headers?: BilingualText[];
+  items?: BilingualText[];
 }
 
 export const CATEGORIES = {
